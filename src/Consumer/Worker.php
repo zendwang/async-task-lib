@@ -5,7 +5,7 @@ namespace Asynclib\Consumer;
  * Worker工作类
  * @author yanbo
  */
-use Asynclib\Core\AmqFactory;
+use Asynclib\AmqFactory;
 class Worker {
 
     private $process;
@@ -13,7 +13,7 @@ class Worker {
     private $queue;
     private $exchange;
 
-    public function __construct($process, $process_num = 1) {
+    public function __construct($process, $process_num = PROCESS_DEFAULT_NUM) {
         $this->process = $process;
         $this->process_num = $process_num;
     }
