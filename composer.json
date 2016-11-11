@@ -1,0 +1,21 @@
+{
+  "name": "luojilab/php-async-lib",
+  "description": "An asynchronous processing framework based on RabbitMQ",
+  "type": "library",
+  "version": "master",
+  "require": {
+    "php": ">=5.4",
+    "ext-swoole": ">=1.8.8",
+    "php-amqplib/php-amqplib": "2.6.*"
+  },
+  "license": "GUN",
+  "authors": [
+    {
+      "name": "yanbo",
+      "email": "yanbo@luojilab.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {"Asynclib\\": "src/"}
+  }
+}
