@@ -1,5 +1,5 @@
 <?php
-namespace Asynclib;
+namespace Asynclib\Amq;
 
 /**
  * RabbitMQ工厂类

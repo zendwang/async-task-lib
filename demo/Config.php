@@ -11,4 +11,4 @@ define('AMQ_HOST', '192.168.100.60');
 define('AMQ_PORT', 5672);
 define('AMQ_USER', 'guest');
 define('AMQ_PASS', 'guest');
-define('AMQ_VHOST', 'shzf');
+define('AMQ_VHOST', '/');
