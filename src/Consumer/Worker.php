@@ -5,49 +5,29 @@ namespace Asynclib\Consumer;
  * Worker工作类
  * @author yanbo
  */
-use Asynclib\AmqFactory;
+use Asynclib\Amq\Exchange;
+use Asynclib\Amq\Queue;
+use Asynclib\Amq\AmqFactory;
 class Worker {
 
+    use Queue, Exchange;
     private $process;
     private $process_num;
-    private $queue;
-    private $exchange;
 
     public function __construct($process, $process_num = PROCESS_DEFAULT_NUM) {
         $this->process = $process;
         $this->process_num = $process_num;
     }
 
-    public function setQueue($queue) {
-        $this->queue = $queue;
-    }
-
-    public function setExchage($exchage) {
-        $this->exchange = $exchage;
-    }
-
-    private function getQueue() {
-        return $this->queue;
-    }
-
-    private function getExchange() {
-        return $this->exchange;
-    }
-
     public function _process(){
-        $queue = $this->getQueue();
-        $exchange = $this->getExchange();
-        try{
-            $connection = AmqFactory::getConnection();
-            $channel = $connection->channel();
-            $channel->queue_declare($queue, false, true, false, false);
-            if ($exchange){
-                $channel->exchange_declare($exchange, 'direct', false, true, false);
-                $channel->queue_bind($queue, $exchange);
+        $connection = AmqFactory::getConnection();
+        $channel = $connection->channel();
+        $channel->queue_declare($this->getQueueName(), false, true, false, false);
+        if ($this->existsExchange()){
+            $channel->exchange_declare($this->getExchangeName(), $this->getExchangeType(), false, true, false);
+            foreach ($this->getRoutingKeys() as $routing_key){
+                $channel->queue_bind($this->getQueueName(), $this->getExchangeName(), $routing_key);
             }
-        }catch (\Exception $e){
-            echo $e->getMessage();
-            exit;
         }
 
         $callback = function($message){
@@ -55,7 +35,7 @@ class Worker {
             call_user_func($this->process, $routing_key, $message->getBody());
             $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
         };
-        $channel->basic_consume($queue, '', false, false, false, false, $callback);
+        $channel->basic_consume($this->getQueueName(), '', false, false, false, false, $callback);
         while(count($channel->callbacks)) {
             $channel->wait();
         }
