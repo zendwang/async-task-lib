@@ -9,6 +9,6 @@ $process = function($key, $msg){
 };
 
 $worker = new Worker($process);
-$worker->setExchage('demo_test');
-$worker->setQueue('demo_test', ['abc']);
+$worker->setExchange('ebats_core_task');
+$worker->setQueue('ebats_task_order', ['order']);
 $worker->start();

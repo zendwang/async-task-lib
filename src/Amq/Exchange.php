@@ -15,7 +15,7 @@ trait Exchange {
      * @param string $name 名称
      * @param string $type 类型 fanout,direct,topic 默认为direct
      */
-    public function setExchage($name, $type = 'direct') {
+    public function setExchange($name, $type = 'direct') {
         $this->exchange_name = $name;
         $this->exchange_type = $type;
     }

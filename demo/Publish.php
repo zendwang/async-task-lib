@@ -1,12 +1,12 @@
 <?php
 require_once 'autoload.php';
 
-use Asynclib\Producer\Publish;
+use Asynclib\Producer\Event;
 
 try{
-    $worker = new Publish();
-    $worker->setExchage('demo_test');
-    $worker->send('1111', 'abc');
+    $event = new Event('order_create');
+    $event->setOptions(['order_id' => 'FB138020392193312']);
+    $event->publish();
 }catch (Exception $exc){
     echo $exc->getMessage();
 }

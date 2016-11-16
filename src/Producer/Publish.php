@@ -12,7 +12,7 @@ class Publish {
 
     use Exchange;
 
-    public function send($data, $routing_key = ''){
+    public function send($data, $routing_key = '', $close_connection = true){
         $connection = AmqFactory::getConnection();
         $channel = $connection->channel();
         $channel->exchange_declare($this->getExchangeName(), $this->getExchangeType(), false, true, false);
@@ -20,6 +20,8 @@ class Publish {
         $toSend = new AMQPMessage(json_encode($data), array('content_type' => 'text/plain', 'delivery_mode' => 2));
         $channel->basic_publish($toSend, $this->getExchangeName(), $routing_key);
         $channel->close();
-        $connection->close();
+        if ($close_connection){
+            $connection->close();
+        }
     }
 }
