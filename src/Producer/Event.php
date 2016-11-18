@@ -22,7 +22,7 @@ class Event {
     }
 
     public function getParams() {
-        return json_encode($this->params);
+        return $this->params;
     }
 
     public function publish() {
