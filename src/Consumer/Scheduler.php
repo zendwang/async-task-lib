@@ -8,8 +8,9 @@ namespace Asynclib\Consumer;
 use Asynclib\Producer\Publish;
 class Scheduler {
 
-    public static $event_key = 'ebats_core_event';
-    private static $task_key = 'ebats_core_task';
+    const EXCHANGE_EVENT = 'ebats_core_event';
+    const EXCHANGE_TASK = 'ebats_core_task';
+    const QUEUE_EVENT = 'ebats_core_event';
 
     public function run() {
         $process = function($event, $msg){
@@ -17,13 +18,13 @@ class Scheduler {
                 $task['params'] = $msg;
 
                 $publish = new Publish();
-                $publish->setExchange(self::$task_key);
+                $publish->setExchange(self::EXCHANGE_TASK);
                 $publish->send($task, $task['topic'], false);
             }
         };
         $worker = new Worker($process);
-        $worker->setExchange(self::$event_key);
-        $worker->setQueue(self::$event_key, EventManager::getEvents());
+        $worker->setExchange(self::EXCHANGE_EVENT);
+        $worker->setQueue(self::QUEUE_EVENT, EventManager::getEvents());
         $worker->start();
     }
 }

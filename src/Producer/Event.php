@@ -27,7 +27,7 @@ class Event {
 
     public function publish() {
         $worker = new Publish();
-        $worker->setExchange(Scheduler::$event_key);
+        $worker->setExchange(Scheduler::EXCHANGE_EVENT);
         $worker->send($this->getParams(), $this->getEvent(), false);
     }
 }
