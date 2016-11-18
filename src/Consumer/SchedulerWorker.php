@@ -21,7 +21,7 @@ class SchedulerWorker{
 
     public function run(){
         $worker = new Worker($this->process);
-        $worker->setExchange(Scheduler::EXCHANGE_EVENT);
+        $worker->setExchange(Scheduler::EXCHANGE_TASK);
         $worker->setQueue($this->task_prefix.$this->queue, [$this->queue]);
         $worker->start();
     }
