@@ -5,6 +5,6 @@ namespace Asynclib\Exception;
  * AmqException
  * @author yanbo
  */
-class AmqException {
+class AmqException extends \Exception{
 
 }
