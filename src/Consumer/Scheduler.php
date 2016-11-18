@@ -15,11 +15,13 @@ class Scheduler {
     public function run() {
         $process = function($event, $msg){
             foreach (EventManager::getTasks($event) as $task){
-                $task['params'] = $msg;
-
+                $data = [
+                    'name' => $task['name'],
+                    'params' => json_decode($msg, 1),
+                ];
                 $publish = new Publish();
                 $publish->setExchange(self::EXCHANGE_TASK);
-                $publish->send($task, $task['topic'], false);
+                $publish->send($data, $task['topic'], false);
             }
         };
         $worker = new Worker($process);
