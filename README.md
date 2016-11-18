@@ -1,2 +1,2 @@
-# php-async-lib
-An asynchronous processing framework based on RabbitMQ
+# async-task-lib
+An event based asynchronous task processing library
