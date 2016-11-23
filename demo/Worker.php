@@ -10,6 +10,6 @@ $process = function($key, $msg, $etime){
 };
 
 $worker = new Worker($process);
-$worker->setExchange('demo_delay', ExchangeTypes::DELAY, ['x-delayed-type' => ['S', 'direct']]);
+$worker->setExchange('demo_delay', ExchangeTypes::DELAY);
 $worker->setQueue('demo_delay');
 $worker->start();

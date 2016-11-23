@@ -16,10 +16,12 @@ trait Exchange {
      * @param string $name 名称
      * @param string $type 类型 fanout,direct,topic 默认为direct
      */
-    public function setExchange($name, $type = 'direct', $arguments = null) {
+    public function setExchange($name, $type = 'direct') {
         $this->exchange_name = $name;
         $this->exchange_type = $type;
-        $this->arguments = $arguments;
+        if ($type == ExchangeTypes::DELAY){
+            $this->arguments = ['x-delayed-type' => ['S', 'direct']];
+        }
     }
 
     private function existsExchange(){
