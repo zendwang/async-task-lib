@@ -26,9 +26,11 @@ class Publish {
 
         $properties = ['content_type' => 'text/plain', 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT];
         if ($delay){
-            $properties['application_headers'] = new AMQPTable(['x-delay' => $delay]);
+            $properties['application_headers'] = new AMQPTable(['x-delay' => $delay * 1000]);
         }
-        $toSend = new AMQPMessage(json_encode($data), $properties);
+        $raw_data['body'] = $data;
+        $raw_data['etime'] = time() + $delay;
+        $toSend = new AMQPMessage(serialize($raw_data), $properties);
         $channel->basic_publish($toSend, $this->getExchangeName(), $routing_key);
         $channel->close();
     }

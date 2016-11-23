@@ -4,8 +4,8 @@ require_once 'autoload.php';
 use Asynclib\Consumer\Worker;
 use Asynclib\Amq\ExchangeTypes;
 
-$process = function($key, $msg){
-    var_dump(microtime(true) - $msg);
+$process = function($key, $msg, $etime){
+    var_dump(date('H:i:s', time()), date('H:i:s', $etime));
     echo "test success\n";
 };
 

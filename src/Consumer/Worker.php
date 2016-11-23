@@ -8,6 +8,8 @@ namespace Asynclib\Consumer;
 use Asynclib\Amq\Exchange;
 use Asynclib\Amq\Queue;
 use Asynclib\Amq\AmqFactory;
+use PhpAmqpLib\Message\AMQPMessage;
+
 class Worker {
 
     use Queue, Exchange;
@@ -30,9 +32,14 @@ class Worker {
             }
         }
 
+        /**
+         * @param AMQPMessage $message
+         */
         $callback = function($message){
             $routing_key = $message->delivery_info['routing_key'];
-            call_user_func($this->process, $routing_key, $message->getBody());
+            $raw_data = unserialize($message->getBody());
+
+            call_user_func($this->process, $routing_key, $raw_data['body'], $raw_data['etime']);
             $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
         };
         $channel->basic_consume($this->getQueueName(), '', false, false, false, false, $callback);
