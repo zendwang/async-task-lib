@@ -15,9 +15,14 @@ class Publish {
     use Exchange;
 
     private $connection;
+    private $auto_close = true;
 
     public function __construct() {
         $this->connection = AmqFactory::getConnection();
+    }
+
+    public function setAutoClose($auto_close) {
+        $this->auto_close = $auto_close;
     }
 
     public function send($data, $routing_key = '', $delay = 0){
@@ -36,6 +41,8 @@ class Publish {
     }
 
     public function __destruct() {
-        $this->connection->close();
+        if ($this->auto_close){
+            $this->connection->close();
+        }
     }
 }

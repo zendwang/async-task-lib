@@ -3,7 +3,6 @@ namespace Asynclib\Producer;
 
 
 use Asynclib\Consumer\Scheduler;
-
 class Event {
 
     private $event;
