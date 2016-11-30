@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__.'/../autoload.php';
-use Asynclib\Producer\Publish;
+use Asynclib\Core\Publish;
 
 try{
     $event = new Publish();

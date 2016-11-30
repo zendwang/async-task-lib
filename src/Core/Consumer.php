@@ -1,21 +1,16 @@
 <?php
-namespace Asynclib\Consumer;
+namespace Asynclib\Core;
 
-/**
- * Consumer
- * @author yanbo
- */
 use Asynclib\Amq\Exchange;
 use Asynclib\Amq\Queue;
 use Asynclib\Amq\AmqFactory;
 use PhpAmqpLib\Message\AMQPMessage;
-
 class Consumer {
 
     use Queue, Exchange;
 
     public function run($process){
-        $connection = AmqFactory::getConnection();
+        $connection = AmqFactory::factory();
         $channel = $connection->channel();
         $channel->queue_declare($this->getQueueName(), false, true, false, false);
         if ($this->existsExchange()){

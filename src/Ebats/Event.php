@@ -1,8 +1,11 @@
 <?php
-namespace Asynclib\Producer;
+namespace Asynclib\Ebats;
 
-
-use Asynclib\Consumer\Scheduler;
+/**
+ * Counter
+ * @author yanbo
+ */
+use Asynclib\Core\Publish;
 class Event {
 
     private $event;

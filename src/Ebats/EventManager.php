@@ -1,5 +1,6 @@
 <?php
-namespace Asynclib\Consumer;
+namespace Asynclib\Ebats;
+use Asynclib\Core\Utils;
 
 /**
  * EventManager
@@ -12,12 +13,12 @@ class EventManager {
     /**
      * 注册事件
      * @param string $event 事件名称
-     * @param string $task 任务名称
+     * @param string $task_name 任务名称
      * @param string $topic 队列标示
      * @param int $delay 延迟时间 默认0秒不延迟
      */
-    public static function register($event, $task, $topic, $delay = 0){
-        self::$events[$event][] = new Job($topic, $task, $delay);
+    public static function register($event, $task_name, $topic, $delay = 0){
+        self::$events[$event][] = new Task($topic, $task_name, $delay);
     }
 
     /**
@@ -26,11 +27,14 @@ class EventManager {
      * @return array|mixed
      */
     public static function getTasks($event) {
-        return isset(self::$events[$event]) ? self::$events[$event] : array();
-    }
+        if (isset(self::$events[$event])){
+            $tasks = self::$events[$event];
+            $task_num = count($tasks);
+            Utils::debug("[$event] Found $task_num task.");
+            return $tasks;
+        }
 
-    public static function getTasksCount($event){
-        return count(self::$events[$event]);
+        return array();
     }
 
     /**

@@ -6,6 +6,7 @@ namespace Asynclib\Amq;
  * @author yanbo
  */
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use Asynclib\Exception\ConnectionedException;
 class AmqFactory {
 
     private static $amq_host = AMQ_HOST;
@@ -18,11 +19,19 @@ class AmqFactory {
     /**
      * 静态工厂方法，返还此类的唯一实例
      */
-    public static function getConnection() {
+    public static function factory() {
         if (is_null(self::$amq_connection)) {
-            self::$amq_connection = new AMQPStreamConnection(self::$amq_host, self::$amq_port, self::$amq_user, self::$amq_pass, self::$amq_vhost);
+            return self::getConnection();
         }
 
         return self::$amq_connection;
+    }
+
+    private static function getConnection(){
+        try{
+            return new AMQPStreamConnection(self::$amq_host, self::$amq_port, self::$amq_user, self::$amq_pass, self::$amq_vhost);
+        }catch (\Exception $exc){
+            throw new ConnectionedException($exc->getMessage());
+        }
     }
 }

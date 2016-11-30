@@ -12,3 +12,5 @@ define('AMQ_PORT', 5672);
 define('AMQ_USER', 'admin');
 define('AMQ_PASS', 'admin');
 define('AMQ_VHOST', '/');
+
+define('EBATS_DEBUG', true);

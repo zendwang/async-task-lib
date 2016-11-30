@@ -1,5 +1,5 @@
 <?php
-namespace Asynclib\Consumer;
+namespace Asynclib\Ebats;
 
 /**
  * Counter

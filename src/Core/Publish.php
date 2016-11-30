@@ -1,15 +1,10 @@
 <?php
-namespace Asynclib\Producer;
+namespace Asynclib\Core;
 
-/**
- * Worker工作类
- * @author yanbo
- */
 use Asynclib\Amq\AmqFactory;
 use Asynclib\Amq\Exchange;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
-
 class Publish {
 
     use Exchange;
@@ -18,7 +13,7 @@ class Publish {
     private $auto_close = true;
 
     public function __construct() {
-        $this->connection = AmqFactory::getConnection();
+        $this->connection = AmqFactory::factory();
     }
 
     public function setAutoClose($auto_close) {

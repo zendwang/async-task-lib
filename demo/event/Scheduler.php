@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__.'/../autoload.php';
-use Asynclib\Consumer\EventManager;
-use Asynclib\Consumer\Scheduler;
+use Asynclib\Ebats\EventManager;
+use Asynclib\Ebats\Scheduler;
 
 //注册事件
 EventManager::register('order_create', 'closeOrder', 'demo', 10);//关闭未付款订单(延迟任务)

@@ -1,12 +1,15 @@
 <?php
-namespace Asynclib\Consumer;
+namespace Asynclib\Ebats;
 
 /**
  * SchedulerWorker
  * @author yanbo
  */
 use Asynclib\Amq\ExchangeTypes;
-use Asynclib\Producer\Publish;
+use Asynclib\Core\Consumer;
+use Asynclib\Core\Publish;
+use Asynclib\Core\Utils;
+
 class Worker{
 
     private $callback;
@@ -26,28 +29,51 @@ class Worker{
 
     /**
      * @param string $key
-     * @param Job $task
+     * @param Task $task
      * @return mixed
      */
-    public function exec($key, $task) {
-        $timebegin = microtime(true);//标记任务开始执行时间
-        $topic = ucfirst($key);
+    public function exec($topic, $task) {
+        Utils::debug("Start exec the [$topic]{$task->getName()}.");
+        $topic = ucfirst($topic);
         $class = "Task{$topic}Model";
         $action = "{$task->getName()}Task";
         if (!class_exists($class)){
             die("[$topic] $class is not exists. \n");
         }
 
+        $timebegin = microtime(true);//标记任务开始执行时间
         $model = new $class();
         if (!method_exists($model, $action)){
             die("[$topic] $action is not exists. \n");
         }
         $result = $model->$action($task->getParams());
-
         $endtime = microtime(true); //标记任务执行完成时间
+
         $timeuse = ($endtime - $timebegin) * 1000; //计算任务执行用时
+        Utils::debug("The task [$topic]{$task->getName()} exec finished, timeuse - {$timeuse}ms.");
         call_user_func($this->callback, $action, $timeuse);
         return $result;
+    }
+
+    /**
+     * 重试机制
+     * @param string $key
+     * @param Task $task
+     */
+    private function retry($key, $task){
+        $counter = new Counter($task->getId());
+        $fail_times = $counter->get();
+        $delay_time = $this->retry_interval[$fail_times];
+        if ($fail_times < count($this->retry_interval)){
+            Utils::debug("Exec task [$key]{$task->getName()} failed, after $delay_time seconds retry[$fail_times].");
+            $publish = new Publish();
+            $publish->setAutoClose(false);
+            $publish->setExchange(Scheduler::EXCHANGE_DELAY, ExchangeTypes::DELAY);
+            $publish->send($task, $key, $delay_time);
+            $counter->incr();
+        }else{
+            $counter->clear();
+        }
     }
 
     public function process(\swoole_process $swoole_process){
@@ -60,34 +86,18 @@ class Worker{
             $exchange_type = ExchangeTypes::DIRECT;
         }
 
-        /**
-         * @param string $key
-         * @param Job $task
-         */
-        $process = function($key, $task){
-            if (!$this->exec($key, $task)){
-                //重试机制
-                $counter = new Counter($task->getId());
-                $fail_times = $counter->get();
-                echo "exec the $fail_times times fail. join it into the delay queue. \n";
-                if ($fail_times < count($this->retry_interval)){
-                    $publish = new Publish();
-                    $publish->setAutoClose(false);
-                    $publish->setExchange(Scheduler::EXCHANGE_DELAY, ExchangeTypes::DELAY);
-                    $publish->send($task, $key, $this->retry_interval[$fail_times]);
-                    $counter->incr();
-                }else{
-                    $counter->clear();
-                }
-            }
-        };
         $worker = new Consumer();
         $worker->setExchange($exchange_name, $exchange_type);
         $worker->setQueue($this->task_prefix[$index].$this->queue, [$this->queue]);
-        $worker->run($process);
+        $worker->run(function($key, $task){
+            if (!$this->exec($key, $task)){
+                $this->retry($key, $task);
+            }
+        });
     }
 
     public function run(){
+        Utils::debug("Worker start init, process_num is {$this->process_num}.");
         for($i = 0; $i < $this->process_num; $i++){
             for ($n = 0; $n < 2; $n++){
                 $process = new \swoole_process([$this, 'process']);
@@ -95,6 +105,7 @@ class Worker{
                 $process->start();
             }
         }
+        Utils::debug("Worker init finished.\n");
         \swoole_process::wait();
     }
 }

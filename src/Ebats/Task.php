@@ -1,11 +1,11 @@
 <?php
-namespace Asynclib\Consumer;
+namespace Asynclib\Ebats;
 
 /**
  * @author yanbo
  * @name Job
  */
-class Job {
+class Task {
 
     private $id;
     private $name;

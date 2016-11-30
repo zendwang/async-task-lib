@@ -1,30 +1,33 @@
 <?php
-namespace Asynclib\Consumer;
+namespace Asynclib\Ebats;
 
 /**
  * Scheduler
  * @author yanbo
  */
 use Asynclib\Amq\ExchangeTypes;
-use Asynclib\Producer\Publish;
+use Asynclib\Core\Consumer;
+use Asynclib\Core\Publish;
+use Asynclib\Core\Utils;
+
 class Scheduler {
 
     const EXCHANGE_EVENT = 'ebats_core_event';
-    const EXCHANGE_TASK = 'ebats_core_task';
-    const EXCHANGE_DELAY = 'ebats_core_delay';
+    const EXCHANGE_TASK = 'ebats_core_ntask';
+    const EXCHANGE_DELAY = 'ebats_core_dtask';
     const QUEUE_EVENT = 'ebats_core_event';
 
     public function run() {
-        $worker = new Consumer();
-        $worker->setExchange(self::EXCHANGE_EVENT);
-        $worker->setQueue(self::QUEUE_EVENT, EventManager::getEvents());
-        $worker->run(function($event, $msg){
+        $events = EventManager::getEvents();
+        Utils::debug('Loaded event '. json_encode($events).'.');
+        Utils::debug('Scheduler start.');
+        $consumer = new Consumer();
+        $consumer->setExchange(self::EXCHANGE_EVENT);
+        $consumer->setQueue(self::QUEUE_EVENT, $events);
+        $consumer->run(function($event, $msg){
+            Utils::debug("The event $event coming.");
             $tasks = EventManager::getTasks($event);
-            $tasks_num = EventManager::getTasksCount($event);
-            $task_json = serialize($tasks);
-            echo "Found {$tasks_num} task : {$task_json} \n";
-
-            /** @var Job $task */
+            /** @var Task $task */
             foreach ($tasks as $task){
                 $task->setParams($msg);
                 if ($task->getDelay()){
@@ -38,6 +41,7 @@ class Scheduler {
                 $publish->setAutoClose(false);
                 $publish->setExchange($exchange_name, $exchange_type);
                 $publish->send($task, $task->getTopic(), $task->getDelay());
+                Utils::debug("[{$task->getTopic()}] {$task->getName()} published, delay: {$task->getDelay()}");
             }
         });
     }
