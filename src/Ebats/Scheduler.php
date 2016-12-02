@@ -8,8 +8,7 @@ namespace Asynclib\Ebats;
 use Asynclib\Amq\ExchangeTypes;
 use Asynclib\Core\Consumer;
 use Asynclib\Core\Publish;
-use Asynclib\Core\Utils;
-
+use Asynclib\Core\Logs;
 class Scheduler {
 
     const EXCHANGE_EVENT = 'ebats_core_event';
@@ -19,13 +18,13 @@ class Scheduler {
 
     public function run() {
         $events = EventManager::getEvents();
-        Utils::debug('Loaded event '. json_encode($events).'.');
-        Utils::debug('Scheduler start.');
+        Logs::info('Loaded event '. json_encode($events).'.');
+        Logs::info('Scheduler start.');
         $consumer = new Consumer();
         $consumer->setExchange(self::EXCHANGE_EVENT);
         $consumer->setQueue(self::QUEUE_EVENT, $events);
         $consumer->run(function($event, $msg){
-            Utils::debug("The event $event coming.");
+            Logs::info("The event $event coming.");
             $tasks = EventManager::getTasks($event);
             /** @var Task $task */
             foreach ($tasks as $task){
@@ -41,7 +40,7 @@ class Scheduler {
                 $publish->setAutoClose(false);
                 $publish->setExchange($exchange_name, $exchange_type);
                 $publish->send($task, $task->getTopic(), $task->getDelay());
-                Utils::debug("[{$task->getTopic()}] {$task->getName()} published, delay: {$task->getDelay()}");
+                Logs::info("[{$task->getTopic()}] {$task->getName()} published, delay: {$task->getDelay()}");
             }
         });
     }

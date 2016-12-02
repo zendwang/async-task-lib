@@ -7,8 +7,11 @@ namespace Asynclib\Ebats;
  */
 use Asynclib\Amq\ExchangeTypes;
 use Asynclib\Core\Consumer;
+use Asynclib\Core\Logs;
 use Asynclib\Core\Publish;
 use Asynclib\Core\Utils;
+use Asynclib\Exception\RetryException;
+use Asynclib\Exception\TaskException;
 
 class Worker{
 
@@ -18,7 +21,7 @@ class Worker{
     private $task_prefix = ['ebats_ntask_', 'ebats_dtask_'];
     private $retry_interval = [5, 300, 600, 3600, 7800];  //5s 5min 10min 1h 2h
 
-    public function __construct($callback, $process_num) {
+    public function __construct($callback, $process_num = 1) {
         $this->callback = $callback;
         $this->process_num = $process_num;
     }
@@ -33,8 +36,9 @@ class Worker{
      * @return mixed
      */
     public function exec($topic, $task) {
-        Utils::debug("Start exec the [$topic]{$task->getName()}.");
         $topic = ucfirst($topic);
+        $params = json_encode($task->getParams());
+        Logs::info("[$topic]{$task->getName()} start exec with the params - $params.");
         $class = "Task{$topic}Model";
         $action = "{$task->getName()}Task";
         if (!class_exists($class)){
@@ -46,34 +50,37 @@ class Worker{
         if (!method_exists($model, $action)){
             die("[$topic] $action is not exists. \n");
         }
-        $result = $model->$action($task->getParams());
+        $model->$action($task->getParams());
         $endtime = microtime(true); //标记任务执行完成时间
-
         $timeuse = ($endtime - $timebegin) * 1000; //计算任务执行用时
-        Utils::debug("The task [$topic]{$task->getName()} exec finished, timeuse - {$timeuse}ms.");
-        call_user_func($this->callback, $action, $timeuse);
-        return $result;
+        Logs::info("[$topic]{$task->getName()} exec finished, timeuse - {$timeuse}ms.");
+        return $timeuse;
     }
 
     /**
      * 重试机制
      * @param string $key
      * @param Task $task
+     * @param int $retry 重试次数
+     * @param int $interval 重试间隔
      */
-    private function retry($key, $task){
+    private function retry($key, $task, $retry, $interval){
         $counter = new Counter($task->getId());
-        $fail_times = $counter->get();
-        $delay_time = $this->retry_interval[$fail_times];
-        if ($fail_times < count($this->retry_interval)){
-            Utils::debug("Exec task [$key]{$task->getName()} failed, after $delay_time seconds retry[$fail_times].");
-            $publish = new Publish();
-            $publish->setAutoClose(false);
-            $publish->setExchange(Scheduler::EXCHANGE_DELAY, ExchangeTypes::DELAY);
-            $publish->send($task, $key, $delay_time);
-            $counter->incr();
-        }else{
+        $fail_times = $counter->get() + 1;
+        $retry_times = $retry ? : count($this->retry_interval);   //重试次数
+        $delay_time = $retry ? $interval : $this->retry_interval[$fail_times]; //重试间隔
+        if ($fail_times > $retry){
             $counter->clear();
+            Logs::info("[$key]{$task->getName()} exec failed, retry end.");
+            return;
         }
+
+        Logs::info("[$key]{$task->getName()} exec failed, after $delay_time seconds retry[$fail_times/$retry_times].");
+        $publish = new Publish();
+        $publish->setAutoClose(false);
+        $publish->setExchange(Scheduler::EXCHANGE_DELAY, ExchangeTypes::DELAY);
+        $publish->send($task, $key, $delay_time);
+        $counter->incr();
     }
 
     public function process(\swoole_process $swoole_process){
@@ -90,14 +97,27 @@ class Worker{
         $worker->setExchange($exchange_name, $exchange_type);
         $worker->setQueue($this->task_prefix[$index].$this->queue, [$this->queue]);
         $worker->run(function($key, $task){
-            if (!$this->exec($key, $task)){
-                $this->retry($key, $task);
+            /** @var Task $task */
+            $timeuse = -1;
+            $message = 'ok.';
+            try{
+                $timeuse = $this->exec($key, $task);
+            }catch (TaskException $exc){
+                $message = $exc->getMessage();
+                Logs::error("[$key]{$task->getName()} exec failed  - $message");
+            }catch (RetryException $exc){
+                $message = $exc->getMessage();
+                Logs::error("[$key]{$task->getName()} exec failed  - $message");
+                $this->retry($key, $task, $exc->getRetry(), $exc->getInterval());
             }
+
+            //将执行情况回调给上层开发者
+            call_user_func($this->callback, $task->getTopic(), $task->getName(), $task->getName(), $task->getParams(), $timeuse, $message);
         });
     }
 
     public function run(){
-        Utils::debug("Worker start init, process_num is {$this->process_num}.");
+        Logs::info("Worker start init, process_num is {$this->process_num}.");
         for($i = 0; $i < $this->process_num; $i++){
             for ($n = 0; $n < 2; $n++){
                 $process = new \swoole_process([$this, 'process']);
@@ -105,7 +125,7 @@ class Worker{
                 $process->start();
             }
         }
-        Utils::debug("Worker init finished.\n");
+        Logs::info("Worker init finished.\n");
         \swoole_process::wait();
     }
 }

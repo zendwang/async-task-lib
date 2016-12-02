@@ -1,6 +1,6 @@
 <?php
 namespace Asynclib\Ebats;
-use Asynclib\Core\Utils;
+use Asynclib\Core\Logs;
 
 /**
  * EventManager
@@ -30,7 +30,7 @@ class EventManager {
         if (isset(self::$events[$event])){
             $tasks = self::$events[$event];
             $task_num = count($tasks);
-            Utils::debug("[$event] Found $task_num task.");
+            Logs::info("[$event] Found $task_num task.");
             return $tasks;
         }
 
