@@ -37,13 +37,15 @@ class Worker{
         $class = "Task{$topic}Model";
         $action = "{$task->getName()}Task";
         if (!class_exists($class)){
-            die("[$topic] $class is not exists. \n");
+            Logs::error("[$topic] $class is not exists.");
+            return -1;
         }
 
         $timebegin = microtime(true);//标记任务开始执行时间
         $model = new $class();
         if (!method_exists($model, $action)){
-            die("[$topic] $action is not exists. \n");
+            Logs::error("[$topic] $action is not exists.");
+            return -1;
         }
         $model->$action($task->getParams());
         $endtime = microtime(true); //标记任务执行完成时间
