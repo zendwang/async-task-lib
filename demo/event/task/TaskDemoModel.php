@@ -33,5 +33,9 @@ class TaskDemoModel {
 
     }
 
+    public function orderAsyncTask($params){
+        var_dump($params);
+    }
+
     //TODO 根据业务需求随时增加任务,开发完任务后在调度器中进行注册即可
 }
