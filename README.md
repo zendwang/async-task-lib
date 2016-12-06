@@ -68,7 +68,3 @@ You should see the message arriving to the process on the second Terminal
 ## Authors && Contributors
 
 - [Monky](https://github.com/boboyan)
-
-## License
-
-licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html)
