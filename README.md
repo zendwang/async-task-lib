@@ -1,5 +1,5 @@
 # async-task-lib
-An event based asynchronous task processing library
+A complete asynchronous task processing system with multiple processes, exception retry
 
 ## Setup ##
 
