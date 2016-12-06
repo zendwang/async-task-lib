@@ -1,10 +1,6 @@
 <?php
 namespace Asynclib\Ebats;
 
-/**
- * Counter
- * @author yanbo
- */
 class Counter {
 
     private $dir = '/tmp/ebats/';

@@ -1,10 +1,6 @@
 <?php
 namespace Asynclib\Amq;
 
-/**
- * Queue
- * @author yanbo
- */
 class ExchangeTypes {
 
     const FANOUT = 'fanout';

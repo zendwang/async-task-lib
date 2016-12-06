@@ -1,10 +1,6 @@
 <?php
 namespace Asynclib\Ebats;
 
-/**
- * Scheduler
- * @author yanbo
- */
 use Asynclib\Amq\ExchangeTypes;
 use Asynclib\Core\Consumer;
 use Asynclib\Core\Publish;

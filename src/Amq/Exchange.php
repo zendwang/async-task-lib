@@ -1,10 +1,6 @@
 <?php
 namespace Asynclib\Amq;
 
-/**
- * Exchange
- * @author yanbo
- */
 trait Exchange {
 
     private $exchange_name;

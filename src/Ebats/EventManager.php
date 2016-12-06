@@ -2,10 +2,6 @@
 namespace Asynclib\Ebats;
 use Asynclib\Core\Logs;
 
-/**
- * EventManager
- * @author yanbo
- */
 class EventManager {
 
     private static $events = [];

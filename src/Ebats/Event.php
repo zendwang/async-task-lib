@@ -1,10 +1,6 @@
 <?php
 namespace Asynclib\Ebats;
 
-/**
- * Counter
- * @author yanbo
- */
 use Asynclib\Core\Publish;
 class Event {
 

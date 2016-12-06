@@ -1,10 +1,6 @@
 <?php
 namespace Asynclib\Amq;
 
-/**
- * Queue
- * @author yanbo
- */
 trait Queue {
 
     private $queue_name;

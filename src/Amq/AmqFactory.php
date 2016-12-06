@@ -1,10 +1,6 @@
 <?php
 namespace Asynclib\Amq;
 
-/**
- * RabbitMQ工厂类
- * @author yanbo
- */
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Asynclib\Exception\ConnectionedException;
 class AmqFactory {

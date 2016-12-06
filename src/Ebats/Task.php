@@ -2,10 +2,6 @@
 namespace Asynclib\Ebats;
 use Asynclib\Core\Publish;
 
-/**
- * @author yanbo
- * @name Job
- */
 class Task {
 
     private $id;

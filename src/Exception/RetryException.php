@@ -1,10 +1,6 @@
 <?php
 namespace Asynclib\Exception;
 
-/**
- * RetryException
- * @author yanbo
- */
 class RetryException extends \RuntimeException implements ExceptionInterface{
 
     private $retry;

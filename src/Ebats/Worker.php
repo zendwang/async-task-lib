@@ -1,15 +1,10 @@
 <?php
 namespace Asynclib\Ebats;
 
-/**
- * SchedulerWorker
- * @author yanbo
- */
 use Asynclib\Amq\ExchangeTypes;
 use Asynclib\Core\Consumer;
 use Asynclib\Core\Logs;
 use Asynclib\Core\Publish;
-use Asynclib\Core\Utils;
 use Asynclib\Exception\RetryException;
 use Asynclib\Exception\TaskException;
 
