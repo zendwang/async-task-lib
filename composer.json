@@ -1,5 +1,5 @@
 {
-  "name": "luojilab/php-async-lib",
+  "name": "luojilab/async-task-lib",
   "description": "A complete asynchronous task processing system with multiple processes, exception retry",
   "type": "library",
   "version": "1.0.0",

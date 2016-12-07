@@ -8,7 +8,7 @@ A complete asynchronous task processing system with multiple processes, exceptio
 ```javascript
 {
   "require": {
-      "luojilab/php-async-lib": "1.0.*"
+      "luojilab/async-task-lib": "1.0.*"
   }
 }
 ```
