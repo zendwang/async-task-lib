@@ -7,7 +7,6 @@ use Asynclib\Core\Logs;
 use Asynclib\Core\Publish;
 use Asynclib\Exception\RetryException;
 use Asynclib\Exception\TaskException;
-
 class Worker{
 
     private $callback;

@@ -1,6 +1,5 @@
 <?php
 namespace Asynclib\Ebats;
-use Asynclib\Core\Publish;
 
 class Task {
 
