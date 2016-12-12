@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__.'/../autoload.php';
-use Asynclib\Ebats\Task;
 use Asynclib\Core\Consumer;
 use Asynclib\Amq\ExchangeTypes;
+use Asynclib\Ebats\Utils;
 use Asynclib\Exception\ExceptionInterface;
 
 /**
@@ -16,7 +16,7 @@ try{
         $order_data = json_encode($msg);
         echo " [$key] $order_data \n";
 
-        Task::create('demo', 'orderAsync', $msg);//创建任务,之后消息将作为参数由任务接管处理
+        Utils::taskCreate('demo', 'orderAsync', $msg);//创建任务,之后消息将作为参数由任务接管处理
     });
 }catch (ExceptionInterface $exc){
     echo $exc->getMessage();

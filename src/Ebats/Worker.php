@@ -16,6 +16,10 @@ class Worker{
     private $task_prefix = ['ebats_ntask_', 'ebats_dtask_'];
     private $retry_interval = [5, 300, 600, 3600, 7800];  //5s 5min 10min 1h 2h
 
+    const STATE_SUCC  = 0;
+    const STATE_FAIL  = 1;
+    const STATE_RETRY = 2;
+
     public function __construct($callback, $process_num = 1) {
         $this->callback = $callback;
         $this->process_num = $process_num;
@@ -96,20 +100,23 @@ class Worker{
         $worker->run(function($key, $task){
             /** @var Task $task */
             $timeuse = -1;
-            $message = 'ok.';
+            $status_code = self::STATE_SUCC;
+            $status_msg = 'ok.';
             try{
                 $timeuse = $this->exec($key, $task);
             }catch (TaskException $exc){
-                $message = $exc->getMessage();
-                Logs::error("[$key]{$task->getName()} exec failed  - $message");
+                $status_code = self::STATE_FAIL;
+                $status_msg = $exc->getMessage();
+                Logs::error("[$key]{$task->getName()} exec failed  - $status_msg");
             }catch (RetryException $exc){
-                $message = $exc->getMessage();
-                Logs::error("[$key]{$task->getName()} exec failed  - $message");
+                $status_code = self::STATE_RETRY;
+                $status_msg = $exc->getMessage();
+                Logs::error("[$key]{$task->getName()} exec failed  - $status_msg");
                 $this->retry($key, $task, $exc->getRetry(), $exc->getInterval());
             }
 
             //将执行情况回调给上层开发者
-            call_user_func($this->callback, $task->getTopic(), $task->getName(), $task->getName(), $task->getParams(), $timeuse, $message);
+            call_user_func($this->callback, $task, $status_code, $status_msg, $timeuse);
         });
     }
 

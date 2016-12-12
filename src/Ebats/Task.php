@@ -17,16 +17,6 @@ class Task {
         $this->delay = $delay;
     }
 
-    public static function create($topic, $name, $params) {
-        $task = new self($topic, $name);
-        $task->setParams($params);
-
-        $publish = new Publish();
-        $publish->setAutoClose(false);
-        $publish->setExchange(Scheduler::EXCHANGE_TASK);
-        $publish->send($task, $task->getTopic(), $task->getDelay());
-    }
-
     public function getId(){
         return $this->id;
     }

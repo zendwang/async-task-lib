@@ -2,10 +2,17 @@
 require_once __DIR__.'/../autoload.php';
 require_once __DIR__.'/task/TaskDemoModel.php';
 use Asynclib\Ebats\Worker;
+use Asynclib\Ebats\Task;
 
 
 //执行结果回调函数
-$callback = function ($topic, $taskid, $taskname, $params, $timeuse, $message){
+/**
+ * @param Task $task
+ * @param int $status_code
+ * @param string $status_msg
+ * @param string $timeuse
+ */
+$callback = function ($task, $status_code, $status_msg, $timeuse){
 
 };
 
