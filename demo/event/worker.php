@@ -12,8 +12,8 @@ use Asynclib\Ebats\Task;
  * @param string $status_msg
  * @param string $timeuse
  */
-$callback = function ($task, $status_code, $status_msg, $timeuse){
-
+$callback = function ($task, $status_code, $status_msg, $exectimes, $timeuse){
+    
 };
 
 $worker = new Worker($callback);  //支持多进程消费默认为1

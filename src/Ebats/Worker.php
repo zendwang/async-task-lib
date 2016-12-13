@@ -72,7 +72,7 @@ class Worker{
         if ($fail_times > $retry){
             $counter->clear();
             Logs::info("[$key]{$task->getName()} exec failed, retry end.");
-            return;
+            return $fail_times;
         }
 
         Logs::info("[$key]{$task->getName()} exec failed, after $delay_time seconds retry[$fail_times/$retry_times].");
@@ -81,6 +81,7 @@ class Worker{
         $publish->setExchange(Scheduler::EXCHANGE_DELAY, ExchangeTypes::DELAY);
         $publish->send($task, $key, $delay_time);
         $counter->incr();
+        return $fail_times;
     }
 
     public function process(\swoole_process $swoole_process){
@@ -99,6 +100,7 @@ class Worker{
         $worker->run(function($key, $task){
             /** @var Task $task */
             $timeuse = -1;
+            $exectimes = 1;
             $status_code = self::STATE_SUCC;
             $status_msg = 'ok.';
             try{
@@ -111,11 +113,11 @@ class Worker{
                 $status_code = self::STATE_RETRY;
                 $status_msg = $exc->getMessage();
                 Logs::error("[$key]{$task->getName()} exec failed  - $status_msg");
-                $this->retry($key, $task, $exc->getRetry(), $exc->getInterval());
+                $exectimes = $this->retry($key, $task, $exc->getRetry(), $exc->getInterval());
             }
 
             //将执行情况回调给上层开发者
-            call_user_func($this->callback, $task, $status_code, $status_msg, $timeuse);
+            call_user_func($this->callback, $task, $status_code, $status_msg, $exectimes, $timeuse);
         });
     }
 
