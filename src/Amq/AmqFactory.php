@@ -17,7 +17,7 @@ class AmqFactory {
      */
     public static function factory() {
         if (is_null(self::$amq_connection)) {
-            return self::getConnection();
+            self::$amq_connection = self::getConnection();
         }
 
         return self::$amq_connection;
