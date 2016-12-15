@@ -7,6 +7,9 @@ class Counter {
     private $filename;
 
     public function __construct($name) {
+        if (!file_exists($this->dir)){
+            mkdir($this->dir);
+        }
         $this->filename = "{$this->dir}$name";
         if (!file_exists($this->filename)){
             touch($this->filename);
