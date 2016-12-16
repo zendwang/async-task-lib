@@ -14,7 +14,7 @@ class Consumer {
         $channel = $connection->channel();
         $channel->queue_declare($this->getQueueName(), false, true, false, false);
         if ($this->existsExchange()){
-            $channel->exchange_declare($this->getExchangeName(), $this->getExchangeType(), false, true, false, false, false, $this->getArguments());
+            $channel->exchange_declare($this->getExchangeName(), $this->getExchangeType(), false, true, false, false);
             foreach ($this->getRoutingKeys() as $routing_key){
                 $channel->queue_bind($this->getQueueName(), $this->getExchangeName(), $routing_key);
             }

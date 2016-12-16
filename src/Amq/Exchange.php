@@ -5,7 +5,6 @@ trait Exchange {
 
     private $exchange_name;
     private $exchange_type;
-    private $arguments;
 
     /**
      * 设置转发器
@@ -15,9 +14,6 @@ trait Exchange {
     public function setExchange($name, $type = 'direct') {
         $this->exchange_name = $name;
         $this->exchange_type = $type;
-        if ($type == ExchangeTypes::DELAY){
-            $this->arguments = ['x-delayed-type' => ['S', 'direct']];
-        }
     }
 
     private function existsExchange(){
@@ -30,9 +26,5 @@ trait Exchange {
 
     private function getExchangeType() {
         return $this->exchange_type;
-    }
-
-    public function getArguments() {
-        return $this->arguments;
     }
 }

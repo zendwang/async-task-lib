@@ -15,10 +15,13 @@ use Asynclib\Ebats\Task;
 $callback = function ($task, $status_code, $status_msg, $exectimes, $timeuse){
     
 };
-
-$worker = new Worker($callback);  //支持多进程消费默认为1
-$worker->setQueue('demo');  //队列名和事件的topic一一对应
-$worker->run();
+try{
+    $worker = new Worker($callback);  //支持多进程消费默认为1
+    $worker->setQueue('demo');  //队列名和事件的topic一一对应
+    $worker->run();
+}catch (\Asynclib\Exception\RuntimeException $exc){
+    var_dump($exc->getMessage());
+}
 
 
 //Worker为系统常驻进程,建议使用pm2进行进程管理,防止异常情况下进程挂掉

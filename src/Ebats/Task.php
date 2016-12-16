@@ -13,7 +13,7 @@ class Task {
         $this->id = $this->setId($topic);
         $this->name = $name;
         $this->topic = $topic;
-        $this->delay = $delay;
+        $this->delay = $delay * 1000;
     }
 
     public function getId(){

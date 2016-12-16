@@ -24,13 +24,12 @@ class Publish {
         $channel = $this->connection->channel();
         $channel->exchange_declare($this->getExchangeName(), $this->getExchangeType(), false, true, false);
 
+        $raw_data = ['etime' => time() + $delay, 'body' => $data];
         $properties = ['content_type' => 'text/plain', 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT];
-        if ($delay){
-            $properties['application_headers'] = new AMQPTable(['x-delay' => $delay * 1000]);
-        }
-        $raw_data['body'] = $data;
-        $raw_data['etime'] = time() + $delay;
         $toSend = new AMQPMessage(serialize($raw_data), $properties);
+        if ($delay){
+            $toSend->set('expiration', $delay);
+        }
         $channel->basic_publish($toSend, $this->getExchangeName(), $routing_key);
         $channel->close();
     }
